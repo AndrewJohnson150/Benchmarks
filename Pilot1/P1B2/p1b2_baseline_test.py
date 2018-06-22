@@ -143,7 +143,7 @@ class p1b2Tests(unittest.TestCase):
         assert (newModel.predict_classes(X_test)[n]) == nPred
         
    
-    def ttest_MR32_AdditionalTrainingSample(self):
+    def test_MR32_AdditionalTrainingSample(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         n = np.random.randint(X_test.shape[1])
 
