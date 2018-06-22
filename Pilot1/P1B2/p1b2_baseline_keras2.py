@@ -1,6 +1,8 @@
 from __future__ import print_function
 
 import numpy as np
+import tensorflow as tf
+import random as rn
 
 from keras.models import Model, Sequential
 from keras.layers import Dense, Dropout, Input
@@ -11,7 +13,7 @@ import p1b2
 
 
 BATCH_SIZE = 64
-NB_EPOCH = 20                 # number of training epochs
+NB_EPOCH = 1#20                 # number of training epochs
 PENALTY = 0.00001             # L2 regularization penalty
 ACTIVATION = 'sigmoid'
 FEATURE_SUBSAMPLE = None
@@ -53,8 +55,12 @@ def extension_from_parameters():
     return ext
 
 
-def main():
-    (X_train, y_train), (X_test, y_test) = p1b2.load_data(n_cols=FEATURE_SUBSAMPLE)
+def main(X_train = None, y_train = None, X_test = None, y_test = None, DeterministicResults = False):
+    if(DeterministicResults):
+        __setSession()
+
+    if X_train is None:
+        (X_train, y_train), (X_test, y_test) = p1b2.load_data(n_cols=FEATURE_SUBSAMPLE)
 
     input_dim = X_train.shape[1]
     output_dim = y_train.shape[1]
@@ -75,6 +81,7 @@ def main():
                             activity_regularizer=l2(PENALTY)))
 
     model.add(Dense(output_dim, activation=ACTIVATION))
+    
 
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     print(model.summary())
@@ -103,6 +110,44 @@ def main():
 
     # print('Submitting to leaderboard...')
     # leaderboard.submit(submission)
+    __resetSeed()
+    return history.best_model
+
+def __resetSeed():
+    np.random.seed()
+    rn.seed()
+
+def __setSession():
+    # Sets session for deterministic results
+    # https://keras.io/getting-started/faq/#how-can-i-obtain-reproducible-results-using-keras-during-development
+
+    
+    # The below is necessary in Python 3.2.3 onwards to
+    # have reproducible behavior for certain hash-based operations.
+    # See these references for further details:
+    # https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONHASHSEED
+    # https://github.com/keras-team/keras/issues/2280#issuecomment-306959926
+    import os
+    os.environ['PYTHONHASHSEED'] = '0'
+    # The below is necessary for starting Numpy generated random numbers
+    # in a well-defined initial state.
+    np.random.seed(42)
+    # The below is necessary for starting core Python generated random numbers
+    # in a well-defined state.
+    rn.seed(12345)
+    # Force TensorFlow to use single thread.
+    # Multiple threads are a potential source of
+    # non-reproducible results.
+    # For further details, see: https://stackoverflow.com/questions/42022950/which-seeds-have-to-be-set-where-to-realize-100-reproducibility-of-training-res
+    session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+    from keras import backend as K
+    # The below tf.set_random_seed() will make random number generation
+    # in the TensorFlow backend have a well-defined initial state.
+    # For further details, see: https://www.tensorflow.org/api_docs/python/tf/set_random_seed
+    #tf.global_variables_initializer()
+    tf.set_random_seed(1234)
+    sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+    K.set_session(sess)
 
 
 if __name__ == '__main__':
