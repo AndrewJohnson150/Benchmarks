@@ -31,11 +31,11 @@ class p1b2Tests(unittest.TestCase):
         diff = scores['accuracy'] - newScores['accuracy'] 
         print('difference in scores:', diff)
 
-    def modelIsDeterministic(self):
+    def est_modelIsDeterministic(self):
         newPreds = p1b2_baseline_keras2.main(DeterministicResults=True).predict_classes(self.X_test)
         assert np.array_equal(self._origPredictions,newPreds), "Model is not deterministic"
 
-    def test_MR0_ConsistenceWithAffineTransform(self):
+    def est_MR0_ConsistenceWithAffineTransform(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         numFeatures = X_train.shape[1]
         
@@ -54,7 +54,7 @@ class p1b2Tests(unittest.TestCase):
 
         assert np.array_equal(self._origPredictions,transformedPredictions), "affine transformations change the outcome of the model"
 
-    def test_MR11_PermutationOfClassLabels(self):
+    def est_MR11_PermutationOfClassLabels(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
 
         #print('pre permute train:')
@@ -78,7 +78,7 @@ class p1b2Tests(unittest.TestCase):
             #print(newPredictions[x])
             #print(p[self._origPredictions[x]])
         
-    def test_MR12_PermutationOfAttributes(self):
+    def est_MR12_PermutationOfAttributes(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
 
         X_train, X_test = self.__shuffleColumnsInUnison(X_train,X_test)
@@ -91,7 +91,7 @@ class p1b2Tests(unittest.TestCase):
         #         print(shuffledModelPredictions[x])
         assert np.array_equal(self._origPredictions,shuffledModelPredictions), "permuting the order of the features changes the outcome of the model"
     
-    def test_MR21_AddUninformativeAttribute(self):
+    def est_MR21_AddUninformativeAttribute(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         tempTrain = np.zeros((X_train.shape[0],X_train.shape[1]+1))
         tempTest = np.zeros((X_test.shape[0],X_test.shape[1]+1))
@@ -101,7 +101,7 @@ class p1b2Tests(unittest.TestCase):
         newPreds = newModel.predict_classes(tempTest)
         assert np.array_equal(self._origPredictions,newPreds), "adding an uninformative attribute changes outcome"
    
-    def test_MR22_AddInformativeAttribute(self):
+    def est_MR22_AddInformativeAttribute(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         tempTrain = np.zeros((X_train.shape[0],X_train.shape[1]+1))
         tempTest = np.zeros((X_test.shape[0],X_test.shape[1]+1))
@@ -126,7 +126,7 @@ class p1b2Tests(unittest.TestCase):
             if (self._origPredictions[x] == n):
                 assert newPreds[x] == n, "adding an informative feature for class n changed previous classifications of n to another class"
    
-    def test_MR31_ConsistenceWithRePrediction(self):
+    def est_MR31_ConsistenceWithRePrediction(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         n = np.random.randint(X_test.shape[0])
         nPred = self._origPredictions[n]
@@ -141,9 +141,8 @@ class p1b2Tests(unittest.TestCase):
         newModel = p1b2_baseline_keras2.main(newXTrain,newYTrain,X_test,y_test,True)
         
         assert (newModel.predict_classes(X_test)[n]) == nPred
-        
    
-    def test_MR32_AdditionalTrainingSample(self):
+    def est_MR32_AdditionalTrainingSample(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         n = np.random.randint(X_test.shape[1])
 
@@ -168,11 +167,8 @@ class p1b2Tests(unittest.TestCase):
         for x in range(X_test.shape[0]):
             if (self._origPredictions[x] == n):
                 assert newPreds[x] == n, "doubling the training samples for class n changed some classifications from n to another class"
-
     
-        
-   
-    def test_MR41_AddClassByDuplicatingSamples(self):
+    def est_MR41_AddClassByDuplicatingSamples(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         cl = np.random.randint(y_train.shape[1])
         
@@ -202,9 +198,7 @@ class p1b2Tests(unittest.TestCase):
             if (self._origPredictions[x] == cl):
                 assert newPreds[x] == cl, "adding new classes by doubling the training samples for classes other than n made our classifier worse for class n"
 
-
-
-    def test_MR42_AddClassesByReLabelingSamples(self):
+    def est_MR42_AddClassesByReLabelingSamples(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         cl = np.random.randint(y_train.shape[1])
 
@@ -232,7 +226,6 @@ class p1b2Tests(unittest.TestCase):
         for x in range(X_test.shape[0]):
             if (self._origPredictions[x] == cl):
                 assert newPreds[x] == cl, "relabeling the class of training samples for classes besides n changed some classifications of n"
-
    
     def test_MR51_RemovalOfClasses(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
@@ -240,40 +233,25 @@ class p1b2Tests(unittest.TestCase):
         cl = np.random.randint(y_test.shape[1])
 
         trainCount = int(np.sum(y_train[:,cl]))
-        testCount = int(np.sum(y_test[:,cl]))
 
         newXTrain = np.zeros((X_train.shape[0] - trainCount, X_train.shape[1]))
-        newYTrain = np.zeros((y_train.shape[0] - trainCount, y_train.shape[1] - 1))
-        newXTest = np.zeros((X_test.shape[0] - testCount, X_test.shape[1]))
-        newYTest = np.zeros((y_test.shape[0] - testCount, y_test.shape[1] - 1))
+        newYTrain = np.zeros((y_train.shape[0] - trainCount, y_train.shape[1]))
 
         count = 0
         for x in range(X_train.shape[0]):
-            if y_train[x,cl] > .5:
-                pass
-            else:
+            if not np.argmax(y_train[x,:]) == cl:
                 newXTrain[count,:] = X_train[x,:]
-                newYTrain[count,:] = np.delete(y_train[x,:],cl,0)
+                newYTrain[count,:] = y_train[x,:]
                 count = count + 1
 
-        count = 0
-        for x in range(X_test.shape[0]):
-            if not y_test[x,cl] > .5:
-                newXTest[count,:] = X_test[x,:]
-                newYTest[count,:] = np.delete(y_test[x,:],cl,0)
-                count = count + 1
-        newModel = p1b2_baseline_keras2.main(newXTrain,newYTrain,newXTest,newYTest,True)
+        newModel = p1b2_baseline_keras2.main(newXTrain,newYTrain,X_test,y_test,True)
         newPreds = newModel.predict_classes(X_test)
 
-        count = 0
         for x in range(X_test.shape[0]):
             if self._origPredictions[x] != cl:
-                assert self._origPredictions[x] == newPreds[count], "removing a class causes the model to change predictions for the remaining classes"
-                count = count + 1
+                assert self._origPredictions[x] == newPreds[x], "removing a class causes the model to change predictions for the remaining classes"
 
-
-
-    def test_MR52_RemovalOfSamples(self):
+    def est_MR52_RemovalOfSamples(self):
         (X_train, y_train), (X_test, y_test) = self.__getCopiesOfData()
         cl = np.random.randint(y_test.shape[1])
 
@@ -298,8 +276,6 @@ class p1b2Tests(unittest.TestCase):
         for x in range(X_test.shape[0]):
             if self._origPredictions[x] == cl:
                 assert self._origPredictions[x] == newPreds[int(np.sum(samplesToKeep[:x]))], "Removing samples from classes other than n causes classifications of n to change to other classes"
-
-    
 
     def __shuffleColumns(self, x):
         x = np.transpose(x)
