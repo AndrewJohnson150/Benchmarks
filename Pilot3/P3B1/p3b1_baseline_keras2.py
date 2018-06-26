@@ -30,7 +30,7 @@ def do_10_fold():
 
    ## Read files
     file_path = os.path.dirname(os.path.realpath(__file__))
-    print file_path
+    print (file_path)
     lib_path = os.path.abspath(os.path.join(file_path, '..', '..', 'common'))
     sys.path.append(lib_path)
 
@@ -38,9 +38,9 @@ def do_10_fold():
     origin = 'http://ftp.mcs.anl.gov/pub/candle/public/benchmarks/P3B1/P3B1_data.tgz'
     data_loc = get_file('P3B1_data.tgz', origin, untar=True, md5_hash=None, cache_subdir='P3B1')
 
-    print 'Data downloaded and stored at: ' + data_loc
+    print ('Data downloaded and stored at: ' , data_loc)
     data_path = os.path.dirname(data_loc)
-    print data_path
+    print(data_path)
 
     for fold in range( 1 ):
 
@@ -88,14 +88,14 @@ def do_10_fold():
         pred2.extend( ret[ 2 ][ 1 ] )
 
 
-    print 'Task 1: Primary site - Macro F1 score', f1_score( truth0, pred0, average= 'macro' )
-    print 'Task 1: Primary site - Micro F1 score', f1_score( truth0, pred0, average= 'micro' )
+    print('Task 1: Primary site - Macro F1 score', f1_score( truth0, pred0, average= 'macro' ))
+    print('Task 1: Primary site - Micro F1 score', f1_score( truth0, pred0, average= 'micro' ))
 
-    print 'Task 2: Tumor laterality - Macro F1 score', f1_score( truth1, pred1, average= 'macro' )
-    print 'Task 3: Tumor laterality - Micro F1 score', f1_score( truth1, pred1, average= 'micro' )
+    print('Task 2: Tumor laterality - Macro F1 score', f1_score( truth1, pred1, average= 'macro' ))
+    print('Task 3: Tumor laterality - Micro F1 score', f1_score( truth1, pred1, average= 'micro' ))
 
-    print 'Task 3: Histological grade - Macro F1 score', f1_score( truth2, pred2, average= 'macro' )
-    print 'Task 3: Histological grade - Micro F1 score', f1_score( truth2, pred2, average= 'micro' )
+    print('Task 3: Histological grade - Macro F1 score', f1_score( truth2, pred2, average= 'macro' ))
+    print('Task 3: Histological grade - Micro F1 score', f1_score( truth2, pred2, average= 'micro' ))
 
 
 
